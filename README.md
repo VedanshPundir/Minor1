@@ -53,7 +53,7 @@ This project is intended for use in enterprise-level network management, cyberse
 
 3. Compile the project:
     ```bash
-    g++ .cpp -o geoscan -lGL -lGLU -lglut
+    g++ geo.cpp -o geoscan -lGL -lGLU -lglut
     ```
 
 4. Run the tool:
@@ -71,6 +71,5 @@ This project is intended for use in enterprise-level network management, cyberse
 
 ---
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 
