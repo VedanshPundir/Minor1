@@ -1,30 +1,76 @@
-# Minor1
-# GeoScan:Information gathering tool
-Part of my first minor project on GeoScan: Information gathering tool
+# GeoScan: Network Scanning & Information Gathering Tool
 
 ## Overview
-GeoScan is a network scanning tool designed to gather information about wireless-connected devices on a network. This project focuses on collecting crucial data such as device IP addresses, MAC addresses, open ports, and version checks of various services. The tool is built in C++ without the use of external libraries or tools like Nmap, ensuring a lightweight and efficient solution for network administrators and security professionals.
+**GeoScan** is a network scanning tool built in **C++**, designed to detect and gather comprehensive information about wireless-connected devices on a network. The tool provides details such as **device IP**, **device type**, **open ports**, **version checks**, **mac address** and **geolocation** of devices.
+
+This project is intended for use in enterprise-level network management, cybersecurity monitoring, and emergency response planning.
+
+---
 
 ## Features
-- **Network Device Discovery**: Automatically detects all active devices connected to the network.
-- **MAC Address Retrieval**: Displays the MAC addresses of all discovered devices.
-- **Port Scanning**: Scans specified ports (e.g., 21, 80, 443, 8080, 53) to check for open services.
-- **Version Check**: Retrieves the service version information for open ports.
-- **Geolocation Mapping**: Displays geolocation data for detected IP addresses.
+- **Device Detection**: Identify wireless-connected devices on the network.
+- **Open Port Scanning**: Scan common ports (e.g., 21, 80, 443) to identify potential vulnerabilities.
+- **Geolocation Mapping**: Display the geolocation of devices based on IP addresses.
+- **Version Check**: Perform version checks for identified devices for network security analysis.
+
+---
+
+## Screenshots
+
+### 1. Main Interface
+![GeoScan Main Interface](infoversion.png)
+*Description*: The main interface of GeoScan showing connected devices, IP addresses, and device types.
+
+### 2. Geolocation with Latitude and Longitude
+![Open Port Scanning](geolocation.png)
+*Description*: Geolocation and latitude and longitude of all the devices found on network.
+
+### 3. Geolocation per device
+![Geolocation Map](geolocationperdevice.png)
+*Description*: Visual representation of device locations using geolocation. Devices are mapped based on their IP addresses.
+
+
+---
 
 ## Technologies Used
-- C++
-- POSIX Sockets
-- pcap library for packet capturing
+- **C++**: Core language used for building the tool, without relying on external libraries like Nmap.
+- **Kali Linux**: Platform used for testing and deployment of the tool.
+- **Bash Scripting**: Used for automating scanning tasks.
 
-## Installation
-To compile and run the GeoScan project on a Kali Linux system, follow these steps:
+---
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/VedanshPundir/Minor1.git
-   
+## How to Run
 
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/geoscan.git
+    ```
 
-   
+2. Navigate to the project directory:
+    ```bash
+    cd geoscan
+    ```
+
+3. Compile the project:
+    ```bash
+    g++ geoscan.cpp -o geoscan -lGL -lGLU -lglut
+    ```
+
+4. Run the tool:
+    ```bash
+    ./geoscan
+    ```
+
+---
+
+## Future Enhancements
+- Support for more ports and protocols.
+- Integration with more advanced 3D visualization libraries.
+- Extended device information with more network protocols (e.g., SNMP).
+- Exporting scan results in multiple formats (CSV, JSON, XML).
+
+---
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
