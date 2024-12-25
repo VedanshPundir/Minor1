@@ -43,17 +43,17 @@ This project is intended for use in enterprise-level network management, cyberse
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/geoscan.git
+   git clone https://github.com/VedanshPundir/Minor1.git
     ```
 
 2. Navigate to the project directory:
     ```bash
-    cd geoscan
+    cd Minor1
     ```
 
 3. Compile the project:
     ```bash
-    g++ geoscan.cpp -o geoscan -lGL -lGLU -lglut
+    g++ .cpp -o geoscan -lGL -lGLU -lglut
     ```
 
 4. Run the tool:
