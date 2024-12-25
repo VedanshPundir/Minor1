@@ -6,6 +6,8 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <curl/curl.h>
+#include <jsoncpp/json/json.h>
 
 // C Headers
 #include <pcap.h>
@@ -218,7 +220,7 @@ std::string getMACAddress(const std::string& ip) {
     }
 
     char line[256];
-    std::string mac = "N/A";
+	    std::string mac = "N/A";
 
     // Skip the first line (header)
     if (fgets(line, sizeof(line), arpCache) == nullptr) {
@@ -292,9 +294,66 @@ std::string getVersionInfo(int sockfd) {
         return "N/A";
     }
 }
-// *** End of Enhanced getVersionInfo Function ***
 
-// Function to scan a range of IP addresses within a subnet
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
+    size_t totalSize = size * nmemb;
+    s->append((char*)contents, totalSize);
+    return totalSize;
+}
+
+std::string getGeolocation(const std::string& ipAddress) {
+    CURL* curl;
+    CURLcode res;
+    std::string readBuffer;
+
+    // Initialize CURL
+    curl = curl_easy_init();
+    if (curl) {
+        // Use ipinfo.io API for geolocation
+        std::string url = "https://ipinfo.io/" + ipAddress + "/json";
+
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+        // Perform the request
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            return "Geolocation not available";
+        }
+
+        // Clean up CURL
+        curl_easy_cleanup(curl);
+    }
+
+    // Parse JSON response
+    Json::CharReaderBuilder readerBuilder;
+    Json::Value jsonData;
+    std::string errs;
+    std::istringstream iss(readBuffer);
+    std::string geolocation;
+
+    // Default latitude and longitude
+    std::string latitude = "30.3244";
+    std::string longitude = "78.0339";
+
+    if (Json::parseFromStream(readerBuilder, iss, &jsonData, &errs)) {
+        std::string city = jsonData.get("city", "Uttarakhand").asString();
+        std::string region = jsonData.get("region", "Dehra Dūn").asString();
+        std::string country = jsonData.get("country", "IN").asString();
+
+        geolocation = city + ", " + region + ", " + country;
+    } else {
+        geolocation = "Geolocation not available";
+    }
+
+    // Append latitude and longitude once
+    geolocation += " | Latitude: " + latitude + " | Longitude: " + longitude;
+
+    return geolocation;
+}
+
 void scanRange(const std::string& subnet, int start, int end, std::vector<Device>& devices) {
     for (int i = start; i <= end; ++i) {
         std::string targetIP = subnet + std::to_string(i);
@@ -304,6 +363,7 @@ void scanRange(const std::string& subnet, int start, int end, std::vector<Device
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             std::string mac = getMACAddress(targetIP);
+            std::string geolocation = getGeolocation(targetIP);  // Fetch geolocation
 
             // Only add device if MAC is valid (not "N/A" and not "00:00:00:00:00:00")
             if (mac != "N/A" && mac != "00:00:00:00:00:00") {
@@ -311,30 +371,27 @@ void scanRange(const std::string& subnet, int start, int end, std::vector<Device
                 device.ip = targetIP;
                 device.status = "Alive";
                 device.mac = mac;
-                device.version = "N/A"; // Initialize with "N/A"
-
-                // Lock before modifying the devices vector
+                device.version = "N/A"; // Initialize with "N/              
                 {
                     std::lock_guard<std::mutex> lock(devicesMutex);
                     devices.push_back(device);
                 }
 
-                // Lock before printing to console
                 {
                     std::lock_guard<std::mutex> lock(coutMutex);
                     std::cout << "Device found at: " << targetIP 
-                              << " | MAC: " << mac << std::endl;
+                              << " | MAC: " << mac 
+                              << " | Geolocation: " << geolocation << std::endl;
                 }
             }
         }
     }
 }
-
-// Function to scan specified ports on a detected device using multithreading and perform banner grabbing
+ 
 void scanPorts(Device& device, const std::vector<int>& ports) {
     {
         std::lock_guard<std::mutex> lock(coutMutex);
-        std::cout << "\nScanning ports for IP: " << device.ip << std::endl;
+       std::cout << "\nScanning ports for IP: " << device.ip << std::endl;
     }
 
     const int MAX_CONCURRENT_THREADS = 50; // Adjust as needed
@@ -564,4 +621,3 @@ int main() {
 
     return 0;
 }
-
